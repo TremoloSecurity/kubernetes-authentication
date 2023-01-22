@@ -1,0 +1,51 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-server-http-ingress
+  namespace: argocd
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: argo-cd-argocd-server
+            port: 
+              name: http
+        path: "/"
+        pathType: Prefix
+    host: argocd.blog.tremolo.dev
+  tls:
+  - hosts:
+    - argocd.blog.tremolo.dev
+    secretName: argocd-web-tls-none
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-server-grpc-ingress
+  namespace: argocd
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: argo-cd-argocd-server
+            port: 
+              name: https
+        path: "/"
+        pathType: Prefix
+    host: grpc-argocd.blog.tremolo.dev
+  tls:
+  - hosts:
+    - grpc-argocd.blog.tremolo.dev
+    secretName: argocd-grpc-tls-none
+    

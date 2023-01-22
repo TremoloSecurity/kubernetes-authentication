@@ -1,0 +1,250 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: oidc-proxy
+spec:
+  finalizers:
+  - kubernetes
+---
+apiVersion: v1
+data:
+  tls.crt: |-
+    -----BEGIN CERTIFICATE-----
+    MIIDETCCAfmgAwIBAgIUbkbKfQ7oeurnTzrygH/GCKI36E0wDQYJKoZIhvcNAQEL
+    BQAwGDEWMBQGA1UEAwwNZW50ZXJwcmlzZS1jYTAeFw0yMjExMDcxNDQ1MjJaFw0z
+    MjExMDQxNDQ1MjJaMBgxFjAUBgNVBAMMDWVudGVycHJpc2UtY2EwggEiMA0GCSqG
+    SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCnqVwyQo22rG6nUZcSe/GmVfr90Kzgux09
+    468pSSQdpDq9RTQUOvfATPBW81wBRfP1/ryEhshruAKa9/5h+5B/x8ncxTXpm8B7
+    vD7etv8WuryKPsILuidOD0GQSETo77AXM7FfiROr01j7w6QPwuPvBJSp3ikiC/Dc
+    vE66lvIEXN7dSgDddvuvGQNDWOYlGZhf5FHW/5drPHuO9zuyUG+MMi1iP+RBMPRg
+    Ie6v8BpOgrsgdtmXLa4VMsPM+0XfD0H8cSf/2H6WS4/7D8AulnPIoKcY+FLJPAm3
+    ITR7/l6Q0IQuMSw6BLKafBFnBVcTQSH7yJdAJ5gH4VYDr2jkUZL3AgMBAAGjUzBR
+    MB0GA1UdDgQWBBSf9D5FKwHIF7xWqF/48n+r/RTQ3jAfBgNVHSMEGDAWgBSf9D5F
+    KwHIF7xWqF/48n+r/RTQ3jAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUA
+    A4IBAQB7Pl29+rRvxp+TxKOtBddKxHaE2UELnbidhU/16QmnuViBAXbuERHAvcJa
+    naoZecBUARtiLXOjh91A6Ao5ZDOdDNYNRCgLb6s7CUXR+3KzvVFcITTRtkSNLJ15
+    g4hjYrAKDY1H3OswQ/SrhLoFBwgxbICQyxSKit49Dk+exszn1BE716iiIVgYOGZO
+    yIayzBYumFss40jkmhlnk5enab8IL4TqpCe/qbvm5wNjKZUZ3jbl3d1UemqYNuYV
+    cEcZ4QymABYKy4VE3TRYRbIdet4V6uYHF5YPyEEiY0TUe+XURZVAmiOcrkjnUHOx
+    1bjzRqJZL5TwoFCg5eeDzuY4ZTcc
+    -----END CERTIFICATE-----
+kind: ConfigMap
+metadata:
+  name: unison-ca
+  namespace: oidc-proxy
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: oidc-proxy-internal
+  namespace: oidc-proxy
+spec:
+  secretName: oidc-proxy-tls
+  secretTemplate:
+    labels: {}
+  commonName: "oidc-proxy.oidc-proxy.svc"
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+    - "oidc-proxy.oidc-proxy.svc"
+  issuerRef:
+    name: cluster-ca
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kube-oidc-proxy-api-server
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-api-server
+    app.kubernetes.io/component: kube-oidc-proxy
+    app.kubernetes.io/part-of: openunison
+  name: kube-oidc-proxy-api-server
+  namespace: oidc-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-oidc-proxy-api-server
+  template:
+    metadata:
+      labels:
+        app: kube-oidc-proxy-api-server
+        app.kubernetes.io/name: openunison
+        app.kubernetes.io/instance: openunison-api-server
+        app.kubernetes.io/component: kube-oidc-proxy
+        app.kubernetes.io/part-of: openunison
+    spec:
+      serviceAccountName: oidc-proxy-api-server
+      containers:
+      - image: docker.io/tremolosecurity/kube-oidc-proxy:latest
+        ports:
+        - containerPort: 8443
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        name: kube-oidc-proxy-api-server
+        command: ["kube-oidc-proxy"]
+        args:
+          - "--secure-port=8443"
+          - "--tls-cert-file=/etc/oidc/tls/crt.pem"
+          - "--tls-private-key-file=/etc/oidc/tls/key.pem"
+          - "--oidc-client-id=kube-login"
+          - "--oidc-issuer-url=https://dex.blog.tremolo.dev/dex"
+          - "--oidc-username-claim=sub"
+          - "--oidc-groups-claim=groups"
+          - "--oidc-ca-file=/etc/oidc/oidc-ca.pem"
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 10001
+          runAsGroup: 10001
+          allowPrivilegeEscalation: false
+        volumeMounts:
+          - name: kube-oidc-proxy-config
+            mountPath: /etc/oidc
+            readOnly: true
+          - name: kube-oidc-proxy-tls
+            mountPath: /etc/oidc/tls
+            readOnly: true
+      volumes:
+        - name: kube-oidc-proxy-config
+          configMap:
+            name: unison-ca
+            items:
+            - key: tls.crt
+              path: oidc-ca.pem
+        - name: kube-oidc-proxy-tls
+          secret:
+            secretName: oidc-proxy-tls
+            items:
+            - key: tls.crt
+              path: crt.pem
+            - key: tls.key
+              path: key.pem
+      nodeSelector: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: kube-oidc-proxy-api-server
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-api-server
+    app.kubernetes.io/component: kube-oidc-proxy
+    app.kubernetes.io/part-of: openunison
+  name: kube-oidc-proxy-api-server
+  namespace: oidc-proxy
+spec:
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 8443
+    name: https-kube-oidc-proxy
+  selector:
+    app: kube-oidc-proxy-api-server
+  type: "ClusterIP"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oidc-proxy-api-server
+  namespace: oidc-proxy
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/backend-protocol: https
+    nginx.ingress.kubernetes.io/secure-backends: 'true'
+spec:
+  rules:
+  - host: oidc-proxy-api.blog.tremolo.dev
+    http:
+      paths:
+      - backend:
+          service:
+            name: kube-oidc-proxy-api-server
+            port: 
+              number: 8443
+        path: "/"
+        pathType: Prefix
+  tls:
+  - hosts:
+    - oidc-proxy-api.blog.tremolo.dev
+    secretName: oidc-proxy-tls-certificate-none
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: impersonator-oidc-proxy-api
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - users
+  - groups
+  - serviceaccounts
+  verbs:
+  - impersonate
+- apiGroups:
+  - "authentication.k8s.io"
+  resources:
+  - "userextras/scopes"
+  - "userextras/remote-client-ip"
+  - "tokenreviews"
+  # to support end user impersonation
+  - "userextras/originaluser.jetstack.io-user"
+  - "userextras/originaluser.jetstack.io-groups"
+  - "userextras/originaluser.jetstack.io-extra"
+  verbs:
+  - "create"
+  - "impersonate"
+- apiGroups: 
+  - "authorization.k8s.io"
+  resources:
+  - "subjectaccessreviews"
+  verbs:
+  - "create"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: impersonator-oidc-proxy-api
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: impersonator-oidc-proxy-api
+subjects:
+- kind: ServiceAccount
+  name: oidc-proxy-api-server
+  namespace: oidc-proxy
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp:
+  name: oidc-proxy-api-server
+  namespace: oidc-proxy
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: activedirectory-cluster-admins
+subjects:
+- kind: Group
+  name: k8s-admins
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io

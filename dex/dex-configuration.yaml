@@ -1,0 +1,136 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dex
+spec:
+  finalizers:
+  - kubernetes
+---
+apiVersion: v1
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURDekNDQWZPZ0F3SUJBZ0lVUTFyTnZkMEJCK3ZuVEVWZDFEQVV0QW03dTNrd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0ZURVRNQkVHQTFVRUF3d0tZMngxYzNSbGNpMWpZVEFlRncweU1qRXhNRGN5TVRVMU5UbGFGdzB6TWpFeApNRFF5TVRVMU5UbGFNQlV4RXpBUkJnTlZCQU1NQ21Oc2RYTjBaWEl0WTJFd2dnRWlNQTBHQ1NxR1NJYjNEUUVCCkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEdnM5emFhNkxGdExWQlRpWG9Fb21xM0Y3SjJiVWljU0VpOWRJbFRPTWsKd3luM0MvTWJncGpQYXlwRVJFTHpUQXYxRERJTzhCWmhvT1J5cVhQSHlNQTV6SURWblY3aE9NYUFXY3diSkVwRApmRlF1ZUVVYTVVL3J3ajU5YzR4cW1sa2VUN2paR3Nyc21QaXY1UGpQVGRNbDdUSFhQOGJjNm1kR05odkpabUZtCm9QVERvRktiMi8xQm9JVVBXbGpmVXhEM1QxaXNvQ3JPVDF6UDNpcHBKcFVUKzJzV2V6cHVDRlhLaTl5cXlQcEwKdVErZ3UvL3NSRHlFMjc0c0ljSVVKaDQ0RkNFM3FmSWNpVGtaMU1Vc2ZtSU1jM2EwNUs3R2R2bTFQK2Y1Z1VWMQpPUERBYVEvNWxKd2x2eWNXZjllRGVUWmJibERTeDJNWVFHOFJvWU9BMm1EcEFnTUJBQUdqVXpCUk1CMEdBMVVkCkRnUVdCQlMrOFR3eE50UzBjUy9tTDdTaitrWEhnY1RoM2pBZkJnTlZIU01FR0RBV2dCUys4VHd4TnRTMGNTL20KTDdTaitrWEhnY1RoM2pBUEJnTlZIUk1CQWY4RUJUQURBUUgvTUEwR0NTcUdTSWIzRFFFQkN3VUFBNElCQVFBMApHaGRZQk55UG5pWTR2a3ZsenhLYkMxQ29zU2tPdkhqT0pNYlgvR3BqeDd3djFEUlZGbXd3OXRhb2FtVVFBa1gyClQ1WEg4MGFwUlk1R1RRVE9BQUlpTXZZTFhCRkErS1RJYzQrdWZhWTVETTFDWEllLzFzeDRHQlkzbW4rZXNROHAKV2tkejhNNUJtN3RBN09LQzIvUFFtSlhMNWhwQytvdkNoQUtOVEdPVHd1N3BoTmJ6dUhHTkYzUlJTNmx1ZURaTQpHaGYwRm9OeFRBL2JmZFowWWhkS2pqanRRV1RsVXhUL05Nditrc3orNkhtTENMUmNvNXYxdkpDREJtcUYwaG4xCkp4TU9xR2oxQ3M3bW5OTDRYNldhQ0E4VU1jRXZyRTMxR0w1S1JTSDh0RlBPQTY4ZEV4cnNNY3RHekhtU25YYWMKZ1E5Y3FlcWpIbmRhckFJSmRYcGsKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2Z0lCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktnd2dnU2tBZ0VBQW9JQkFRRHZzOXphYTZMRnRMVkIKVGlYb0VvbXEzRjdKMmJVaWNTRWk5ZElsVE9Na3d5bjNDL01iZ3BqUGF5cEVSRUx6VEF2MURESU84Qlpob09SeQpxWFBIeU1BNXpJRFZuVjdoT01hQVdjd2JKRXBEZkZRdWVFVWE1VS9yd2o1OWM0eHFtbGtlVDdqWkdzcnNtUGl2CjVQalBUZE1sN1RIWFA4YmM2bWRHTmh2SlptRm1vUFREb0ZLYjIvMUJvSVVQV2xqZlV4RDNUMWlzb0NyT1QxelAKM2lwcEpwVVQrMnNXZXpwdUNGWEtpOXlxeVBwTHVRK2d1Ly9zUkR5RTI3NHNJY0lVSmg0NEZDRTNxZkljaVRrWgoxTVVzZm1JTWMzYTA1SzdHZHZtMVArZjVnVVYxT1BEQWFRLzVsSndsdnljV2Y5ZURlVFpiYmxEU3gyTVlRRzhSCm9ZT0EybURwQWdNQkFBRUNnZ0VBRVpNblU2UHQ3NjlCMVdlU2o2OFJSVFBxWnNRVnUvQmR3THVUbEh6TVVERVgKaWZlb005bUoxUFpyWjAwMmQvSjQwM2NaRWYrUU1va0tpdTRwOFNsaXo3SVM5YWFYMHUxWDM0Z0Y5eXo4WFhHWApsZjhuT1BNOGZvR1QxWnlqM0ZxVUEyME90V3RabXNxVi9FYU9hQnV4aWkrM2xtdkVpOFRMZk9wQmRBMHp3Y09SCnl2TVViMlExdUVNREk3cHpwSGZrOGc1ajBlUHlDUjlwSklPWFZ1Y1hCZW13WFhGOTVIZHNtV25VN2ZUVEc2K20KSTgzR2pGOTRTQTByWWRUNFR4WlA0cUt1eGdPK1JJelNxckE0NGNOdHZyalBvSVRsWThwcjRnaVJDeVBiTVNWawpiYXBaeHRuUE5iOE1ndG1xeHFSZnVndWVmaFkrcmlzVlcrdVhKK29ORVFLQmdRRHdPRnZEc09ocnpsVmFucmVqCk9HdndNVGtOR0JlUC9iNVFSZXVFRi9NMFlDZjBZRWN1OWFBVThhSVdOWnpsUElFVEpqOVB0Q1EyU1MrWnc3SVoKTkU0NHJTZ2REZUI2TTE1elBRUndYeUxPc1JJSTVPTHYrSWtMTm5meGplWkJuNE1ZK1RiaVRFc1F0ZmpaVjJKVQoyQzVPa2EyL1I4U3l3ZUc0VURrRFp1YlBjUUtCZ1FEL2NzejhST3ZGUTJLKzhTSXVMSmtmWUw1N2RmY21rWXNkClQ4Y0prbENmc2U0WnQ2RWhZNkE1THlVUkpJRTRwQkRwRzd1VkdhdURpM244YVJ3cFMxSjNuYno4RXgzeGNnWFYKaUNuV3J5eGlzMnh3UjJsVGhiZHllNzg5dWZ5NE9OcHlUYW9LU21VYTk1RzB4TUoraEYyOUxZcGlaVXhRNGtsWgpQRE1saWE1YytRS0JnSCt5RmVYQzV1cFg5cnVEWDY4ZVVSS1B0L29qOG5LU3VsWkZ0TnExT0kyQkIvdzZLZHptCnFVQTQ2cWJQdlNXR3NqNlJ1Rm9RTXFmQTQ5TGpXb3RYYUxWc0pzUzdHYmNjRTN0QzFsYzkyMnp3Wjl2ZWdGeDgKUzYxd09QWnBMaHQ0UmVKQ3FGQkhxaWVwOUN6azdOcVpTSlJ2a0dMOExhMndydUtoa28waWFGT2hBb0dCQU1ZTwp2NHAwOFl5LzQ0Y0NOU3N4M3dNcUltWmRIMlJqQWthV3ZVN1poL05acEsrQjVjZWFrL2JpYTgzdnpOVWF1QlhWCkw4cTUzWGFmcE5Ra3R2WDVkWlpTMGQxc0FSSmNBdFA5djlxNWRTT04wK3oySVY3bDFVZEpWUXpKOEh6eGI4V2kKRzgzZ3dxVjNBQnoxVll0OG02VjY4c201bXNNM3dBRVZJTjdnOGpVWkFvR0JBS2NKQ0NUczJRSUl4SGFmQVNLMQpZWG1XRG9aZVdod0JtTThlSVNvNzZtU2pYK2Q2cDRadWNUTXZITkRJNEVSQ0RIeVc4OWprRVF1NUxkR2NpbW1pCnNlTEo2WENEOTVkTEVBWWdMTU96UC9IMjFPQUR6ZjMvQk04SHVoaWxjbzZkRTRKalV4bkdnOGY5QXJhTlkwMC8KREJJRlhJcHpNbEFQUkVEd1JaUjFhcWRpCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
+kind: Secret
+metadata:
+  name: cluster-ca
+  namespace: cert-manager
+type: kubernetes.io/tls
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  annotations:
+    force: update
+  name: cluster-ca
+spec:
+  ca:
+    secretName: cluster-ca
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dex-internal
+  namespace: dex
+spec:
+  secretName: dex-tls
+  secretTemplate:
+    labels: {}
+  commonName: "dex.dex.svc"
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+    - "dex.dex.svc"
+  issuerRef:
+    name: cluster-ca
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dex-config
+  namespace: dex
+type: Opaque
+stringData:
+  config.yaml: |
+    issuer: https://dex.blog.tremolo.dev/dex
+    storage:
+      type: kubernetes
+      config:
+        inCluster: true
+      
+    web:
+      https: 0.0.0.0:5554
+      TLSCert: /certs/tls.crt
+      TLSKey: /certs/tls.key
+    oauth2:
+      responseTypes: [ "code" ]
+      skipApprovalScreen: true
+      alwaysShowLoginScreen: false
+    connectors:
+      - type: oidc
+        id: okta
+        name: okta
+        config:
+          issuer: https://XXXXX.okta.com
+          clientID: XXXXX
+          clientSecret: XXXXXX
+          redirectURI: https://dex.blog.tremolo.dev/dex/callback
+          insecureSkipEmailVerified: true
+          getUserInfo: true
+          insecureEnableGroups: true
+          scopes:
+          - profile
+          - email
+          - groups
+          - offline_access
+    expiry:
+      idTokens: 1m
+      refreshTokens:
+        absoluteLifetime: 20m
+    staticClients:
+    - id: kube-login
+      redirectURIs:
+      - 'http://localhost:8000'
+      name: 'Kubernetes CLI'
+      public: true
+    - id: oauth2-proxy
+      redirectURIs:
+      - 'https://k8sdb.blog.tremolo.dev/oauth2/callback'
+      name: 'Kubernetes Dashboard'
+      secret: XXXXXX
+    logger:
+      level: "debug"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/backend-protocol: https
+    nginx.ingress.kubernetes.io/secure-backends: "true"
+  name: dex
+  namespace: dex
+spec:
+  rules:
+  - host: dex.blog.tremolo.dev
+    http:
+      paths:
+      - backend:
+          service:
+            name: dex
+            port:
+              number: 5554
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - dex.blog.tremolo.dev
+    secretName: tls-dex-doesnotexist
